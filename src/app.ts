@@ -21,7 +21,7 @@ export default class AlarmTimer {
 	private assets: MRE.AssetContainer;
 
 	// Specific assets and their properties
-	private readonly buttonSquare: MRE.Mesh;
+	//private readonly buttonSquare: MRE.Mesh;
 	private readonly buttonDefaultLocalTransform: MRE.Vector3Like = {
 		x: 0, y: 0, z: -0.2
 	};
@@ -46,10 +46,10 @@ export default class AlarmTimer {
 	private readonly pauseOnly: boolean;
 
 	constructor(private context: MRE.Context, private params: MRE.ParameterSet, private baseUrl: string) {
-		this.initialCount = parseInt(getParameterLastValue(params, 'c', '60'));
-		this.increment = parseInt(getParameterLastValue(params, 'i', '60'));
+		this.initialCount = parseInt(getParameterLastValue(params, 'c', '5'));
+		this.increment = parseInt(getParameterLastValue(params, 'i', '5'));
 		this.viewableByModsOnly = getBooleanOption(params, 'mo', false);
-		this.alarmSoundPath = getParameterLastValue(params, 'as', 'alarm.ogg');
+		this.alarmSoundPath = getParameterLastValue(params, 'as', 'audio-riot-1.wav');
 		this.pauseOnly = getBooleanOption(params, 'p', false);
 		this.audioOptions = this.getAudioOptions(params);
 		this.soundPlaying = new PlayingMedia();
@@ -58,7 +58,7 @@ export default class AlarmTimer {
 		this.context.onUserJoined(user => this.onUserJoined(user));
 
 		// Initialize assets
-		this.buttonSquare = this.assets.createBoxMesh('buttonSquare', 0.25, 0.25, 0.2);
+		//this.buttonSquare = this.assets.createBoxMesh('buttonSquare', 0.25, 0.25, 0.2);
 		this.commonTextProperties = {
 			justify: MRE.TextJustify.Center,
 			font: MRE.TextFontFamily.SansSerif,
@@ -73,7 +73,7 @@ export default class AlarmTimer {
 			0,
 			this.maxVolume
 		) / this.maxVolume;
-		const looping = getBooleanOption(params, 'l', false);
+		const looping = getBooleanOption(params, 'l', true);
 		let options: MRE.SetAudioStateOptions = { volume: volume, looping: looping };
 
 		const ambient = getBooleanOption(params, 'am', false);
@@ -111,13 +111,7 @@ export default class AlarmTimer {
 			'alarmSound',
 			{ uri: alarmSoundUri });
 
-		this.countdownTimer = new Countdown(
-			this.initialCount,
-			(value: string) => {
-				this.setTimerText(value);
-			},
-			this.startSound
-			);
+		this.startSound()
 
 		if (! this.viewableByModsOnly) {
 			await this.createBody();
@@ -143,7 +137,8 @@ export default class AlarmTimer {
 				name: 'timerBody',
 				parentId: this.rootActor!.id,
 				exclusiveToUser: exclusiveToUser,
-				appearance: { meshId: textRectangle.id },
+				//appearance: { meshId: textRectangle.id },
+				appearance: { enabled: false },
 				transform: {
 					app: {
 						position: { x: 0, y: 0.5, z: -this.buttonDefaultLocalTransform.z },
@@ -229,7 +224,8 @@ export default class AlarmTimer {
 			actor: Object.assign({
 				name: `button${position}`,
 				parentId: this.rootActor!.id,
-				appearance: { meshId: this.buttonSquare.id },
+				//appearance: { meshId: this.buttonSquare.id },
+				appearance: { enabled: false },
 				transform: {
 					app: {
 						position: Object.assign({},
